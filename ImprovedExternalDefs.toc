@@ -1,0 +1,17 @@
+## Interface: 120105
+## Title: ImprovedExternalDefs
+## Notes: External Defensives class glows, timers, profiles and Blizzard Edit Mode-driven layout.
+## Author: Habaneros / ChatGPT
+## Version: 1.5.67
+## Dependencies: Blizzard_BuffFrame, Blizzard_AuraContainer
+## IconTexture: Interface\AddOns\ImprovedExternalDefs\Media\AddonLogo
+## SavedVariables: NoExternalPulseDB
+
+Locale.lua
+ImprovedExternalDefs.lua
+SpellCatalog.lua
+NativeSweep.lua
+CommunionTracker.lua
+Profiles.lua
+Options.lua
+Test.lua
