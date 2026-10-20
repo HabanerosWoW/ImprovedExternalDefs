@@ -2,7 +2,7 @@
 ## Title: ImprovedExternalDefs
 ## Notes: External Defensives class glows, timers, profiles and Blizzard Edit Mode-driven layout.
 ## Author: Habaneros / ChatGPT
-## Version: 1.5.67
+## Version: 1.5.65
 ## Dependencies: Blizzard_BuffFrame, Blizzard_AuraContainer
 ## IconTexture: Interface\AddOns\ImprovedExternalDefs\Media\AddonLogo
 ## SavedVariables: NoExternalPulseDB

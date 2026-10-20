@@ -14,12 +14,14 @@
 -- source=ALLY: cast/applied to you by a teammate or protective area.
 -- source=STEAL: magical personal defensive that may be Spellstolen.
 -- source=BOTH: both an ally's buff and a stealable defensive.
+-- source=SELF_ALLY: personal self-aura or ally-targeted variant.
 local _, ns = ...
 ns.SpellCatalog = {
-    -- DEATH KNIGHT: 48707 is personal-only, cannot be Spellstolen.
-    -- Keep its legacy option key (48707) but track ONLY the ally-targeted
-    -- Spellwarding buff 410358. Users of the 1.5.32 checkbox keep it enabled.
-    {id=48707, displayID=410358, class="DEATHKNIGHT", kind="OPTIONAL", source="ALLY", english="Anti-Magic Shell", auraIDs={410358}, note="Spellwarding PvP talent: tracks the ally-applied buff (410358), not the personal shell (48707)."},
+    -- DEATH KNIGHT: track both the personal Anti-Magic Shell aura (48707)
+    -- and the ally-targeted Spellwarding variant (410358) under one checkbox.
+    -- Preserve the old selection key (48707) for existing profiles.
+    -- 48707 is personal-only, not an external buff or a Spellsteal candidate.
+    {id=48707, displayID=410358, class="DEATHKNIGHT", kind="OPTIONAL", source="SELF_ALLY", english="Anti-Magic Shell", auraIDs={48707,410358}, note="Tracks the DK's personal buff (48707) and the ally-targeted Spellwarding buff (410358)."},
     {id=145629, class="DEATHKNIGHT", kind="OPTIONAL", source="ALLY", english="Anti-Magic Zone", auraIDs={145629,51052}},
 
     -- DEMON HUNTER: a protective area; neither Blur nor Demon Spikes
@@ -59,6 +61,10 @@ ns.SpellCatalog = {
 
     -- MONK
     {id=116849, class="MONK", kind="NATIVE", source="ALLY", english="Life Cocoon"},
+    -- Peaceweaver (Tisse-paix) PvP talent: Revival / Restoral (Regain /
+    -- Résorption) grant this distinct two-second magic immunity aura to allies.
+    -- 353319 is the received buff; 353313 is the passive talent, not tracked.
+    {id=353319, class="MONK", kind="OPTIONAL", source="ALLY", english="Peaceweaver", note="Mistweaver PvP talent Peaceweaver (Tisse-paix): Revival or Restoral grants a 2-second immunity to magic damage and harmful effects. Tracks the received buff (353319), not the passive talent (353313)."},
     -- Celestial Harmony/Chi-Ji/Yu'lon and Midnight variants. The recipient
     -- gains a separate absorb BUFF; do not confuse it with a personal brew.
     {id=406139, class="MONK", kind="OPTIONAL", source="ALLY", english="Chi Cocoon", auraIDs={406139,406220,1260681}, note="Celestial Harmony Chi Cocoon shields. 406220 observed on a recipient in Retail 12.1.5; other variants still require live verification. Optional and OFF by default."},

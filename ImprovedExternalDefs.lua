@@ -1,7 +1,7 @@
--- ImprovedExternalDefs v1.5.67 (WoW Retail, Midnight 12.1.5)
+-- ImprovedExternalDefs v1.5.64 (WoW Retail, Midnight 12.1.5)
 -- Blizzard-native recipient aura tracking, visuals, and settings.
 local ADDON_NAME, ns = ...
-local ADDON_VERSION = "1.5.67"
+local ADDON_VERSION = "1.5.65"
 local L = ns.L or function(value) return value end
 
 local pendingSetup = false

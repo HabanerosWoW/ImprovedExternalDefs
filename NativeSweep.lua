@@ -210,11 +210,36 @@ local function IsEditing()
     end
     return false
 end
+-- The stock Blizzard aura container is hidden with zero alpha when the
+-- supplementary tracker is active. Zero alpha does NOT prevent its aura
+-- buttons from receiving hover events, so those invisible native buttons
+-- can still display tooltips over our visible icons. Only disable mouse
+-- MOTION (tooltips), never mouse clicks or the Blizzard aura engine.
+-- Perform the change outside combat and avoid restricted OnEnter scripts.
+local mouseMotionDisabled = setmetatable({}, {__mode="k"})
+local function DisableAuraHover(frame)
+    if not frame or mouseMotionDisabled[frame] or InCombat() then return end
+    if type(frame.SetMouseMotionEnabled) ~= "function" then return end
+    local ok = pcall(frame.SetMouseMotionEnabled, frame, false)
+    if ok then mouseMotionDisabled[frame] = true end
+end
+local function DisableNativeAuraHover()
+    if not stock or not parent or InCombat() then return end
+    DisableAuraHover(stock)
+    -- Blizzard's stock tracker keeps the buttons in auraFrames, independent
+    -- of the custom AuraButtons created by our native supplementary groups.
+    if type(parent.auraFrames) == "table" then
+        for _, button in ipairs(parent.auraFrames) do
+            DisableAuraHover(button)
+        end
+    end
+end
 local function SetLegacyVisibility()
     if InCombat() or not managed or not stock then return end
-    -- Keep the original Blizzard container SHOWN (at zero opacity).  The
-    -- original sound reconciliation still watches its changing aura slots.
-    -- Using alpha, rather than Show/Hide, lets native aura logic keep running.
+    -- Preserve the stock Blizzard aura processing: hiding the stock frame
+    -- outright can stop Blizzard's aura updates. Alpha alone does not stop
+    -- tooltips, hence the targeted mouse-motion suppression above.
+    DisableNativeAuraHover()
     local edit = IsEditing()
     stock:SetAlpha(edit and 1 or 0)
     managed:SetShown(not edit)
@@ -424,6 +449,11 @@ local function InitializeButton(button, assignedClass)
     -- The callback is used by Blizzard's native CustomAuraContainerTemplate.
     -- On real AuraButtons the engine supplies these two registration methods.
     local ok, errorText = pcall(function()
+        -- AuraButton tooltip handling is intrinsic on Retail 12.1+. Apply
+        -- this BEFORE binding aura icon/duration widgets, while the native
+        -- initializeFrame callback still permits changes to the button.
+        -- Do not HookScript or modify GameTooltip globally.
+        DisableAuraHover(button)
         assert(type(button.SetDurationCooldown) == "function", "No SetDurationCooldown on custom AuraButton")
         assert(type(button.SetDurationText) == "function", "No SetDurationText on custom AuraButton")
 
@@ -454,8 +484,12 @@ local function InitializeButton(button, assignedClass)
             button:SetDurationText(duration)
         end
         button:SetDurationCooldown(cooldown)
+        -- Mouse-motion was disabled at the start of initializeFrame, before
+        -- Blizzard's aura-duration bindings could protect the button.
+        -- SetHideTooltipInCombat is only a secondary safeguard; we also want
+        -- tooltips disabled outside combat.
         if type(button.SetHideTooltipInCombat) == "function" then
-            button:SetHideTooltipInCombat(true)
+            pcall(button.SetHideTooltipInCombat, button, true)
         end
         local glowLayer, halo, edges = GlowRegions(button, icon)
         local record = {frame=button, icon=icon, cooldown=cooldown,
@@ -463,16 +497,10 @@ local function InitializeButton(button, assignedClass)
             classKey=assignedClass}
         slots[#slots + 1] = record
         StyleManaged(record)
-        button:HookScript("OnShow", function()
-            -- Combat-safe: never restyle the native cooldown/text in this hook.
-            -- Only recolor the textures created and owned by this addon.
-            local ok = pcall(function()
-                ns.PaintGlow(record.icon, record.halo, record.edges, nil, nil,
-                    Database(), ns.GetConfiguredGlowColor(
-                        record.classKey and ns.CLASS_COLORS[record.classKey]
-                            or AuraGlowColor(record.icon)), 1, true)
-            end)
-        end)
+        -- Do not HookScript("OnShow") on an intrinsic AuraButton: after
+        -- assignment to the native AuraContainer it has forbidden script
+        -- aspects. StyleManaged() above applies the chosen appearance without
+        -- installing any forbidden handler (the source of login chat spam).
     end)
     if not ok then
         problem = tostring(errorText)

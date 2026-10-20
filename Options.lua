@@ -628,7 +628,7 @@ function ns.CreateOptions()
 
     local title = Font(root, "ImprovedExternalDefs", 21, { 1, 0.85, 0.50 })
     title:SetPoint("TOPLEFT", root, "TOPLEFT", 19, -8)
-    local ver = Font(root, "v1.5.64", 11, { 0.64, 0.72, 0.83 })
+    local ver = Font(root, "v1.5.65", 11, { 0.64, 0.72, 0.83 })
     ver:SetPoint("LEFT", title, "RIGHT", 10, -2)
 
     -- Shared header action stays visible on EVERY tab, even when a page is scrolled.
@@ -1091,6 +1091,8 @@ function ns.CreateOptions()
                 GameTooltip:AddLine(L("Stealable defensive Magic buff"), 0.7, 0.85, 1)
             elseif spell.source == "BOTH" then
                 GameTooltip:AddLine(L("Ally defensive / Spellsteal"), 0.7, 0.85, 1)
+            elseif spell.source == "SELF_ALLY" then
+                GameTooltip:AddLine(L("Personal / Ally"), 0.7, 0.85, 1)
             else
                 GameTooltip:AddLine(L("Defensive received from an ally"), 0.7, 0.85, 1)
             end
@@ -1166,7 +1168,8 @@ function ns.CreateOptions()
                 item.caption:SetText(localized .. " (" .. publicID .. ")")
                 local origin = spell.source == "CAST" and "Party caster" or
                     (spell.source == "STEAL" and "Spellsteal" or
-                    (spell.source == "BOTH" and "Ally / Spellsteal" or "Ally"))
+                    (spell.source == "BOTH" and "Ally / Spellsteal" or
+                    (spell.source == "SELF_ALLY" and "Personal / Ally" or "Ally")))
                 local state = spell.kind == "NATIVE" and "Blizzard" or
                     (spell.kind == "SPECIAL" and "Extra" or (spell.kind == "CAST" and "Caster" or "Optional"))
                 item.badge:SetText(L(origin) .. "  -  " .. L(state) ..
